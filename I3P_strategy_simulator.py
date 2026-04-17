@@ -191,23 +191,24 @@ if __name__ == '__main__':
     token_size = 4
 
     # User betting conditions
-    ante = 1 * token_size # limit = 16, min = 1
-    pair_plus = 3 * token_size # limit = 16, min = 0
+    ante = 4 * token_size # limit = 16, min = 1
+    pair_plus = 1 * token_size # limit = 16, min = 0
     starting_stack = 640 # Max ~2300 (64 stack * 36 slots of __________) ?????
     play_pair_plus = pair_plus > 0 # Play Pair Plus?
     # [0, 0] - [0, 2] play every hand? THEN WHY DO THE ODDS CHANGE?????
-    user_to_qualify = [0, 11] # Hand type (0-7) & Highest active card (0-12)
+    user_to_qualify = [0, 0] # Hand type (0-7) & Highest active card (0-12)
     dynamic_quit_conditions = True # still problems here
+    dynamic_change_max = 2
 
     # Success conditions
     quit_success = 2 * starting_stack  # 864  Max score before quitting
-    success_threshold = 1.65 * starting_stack
+    success_threshold = 1.5 * starting_stack + 0
     success_top = 2 * starting_stack
-    success_bottom = starting_stack + 32
+    success_bottom = 1 * starting_stack - 0
 
     # Failure Conditions
-    quit_failure = starting_stack / 2 # Min score before quitting
-    failure_threshold =  (starting_stack / 2) + 128
+    quit_failure = starting_stack / 3 # Min score before quitting
+    failure_threshold =  starting_stack / 2
     failure_top = starting_stack
     failure_bottom = quit_failure
 
@@ -236,6 +237,7 @@ if __name__ == '__main__':
     total_stack_final = 0 #
     total_hands_qualified = 0 #
     total_positive_sessions = 0 #
+    dynamic_change = 0 #
 
     # Results Variables
     avg_stack_max = 0
@@ -301,20 +303,20 @@ if __name__ == '__main__':
                     user_wins = False
 
                 # Ante and Play payout
-                # WHAT ARE WE DOING HERE?????? FIRST TWO CONDITIONS ARE STUPID
+                # WHAT ARE WE DOING HERE?????? THIS IS DUMBBBBBBB
                 if not house_qualifies and not play_pair_plus:
                     #stack += (2 * ante) v1 payout
                     #house_stack += -(2 * ante) v1 payout
-                    stack += (3 * ante - (ante / 4))  # Pay Ante 1:1 and return Play 4:3 (ante - 1)
-                    house_stack += -(3 * ante - (ante / 4))
+                    stack += (3 * ante - (ante / 2))  # Pay Ante 1:1 and return Play 4:3 (ante - 1)
+                    house_stack += -(3 * ante - (ante / 2))
                 elif not house_qualifies and play_pair_plus:
                     #stack += (3 * ante) v1 payout
                     #house_stack += -(3 * ante) v1 payout
-                    stack += (3 * ante)  # Pay Ante 1:1 and return Play
-                    house_stack += -(3 * ante)
+                    stack += (3 * ante - (ante / 2))
+                    house_stack += -(3 * ante - (ante / 2))
                 elif house_qualifies and user_wins:
-                    stack += (4 * ante + (ante / 4))  # Pay Ante 1:1 and Play 4:5 (ante + 1)
-                    house_stack += -(4 * ante + (ante / 4))
+                    stack += (4 * ante + (ante / 2))  # Pay Ante 1:1 and Play 4:5 (ante + 1)
+                    house_stack += -(4 * ante + (ante / 2))
                     user_win_count += 1
 
                 # Pair Plus payout
@@ -359,12 +361,14 @@ if __name__ == '__main__':
             elif stack <= quit_failure:  # Failure
                 session_busted = True
                 break
-            elif dynamic_quit_conditions and stack >= success_threshold: # change conditions based on performace
+            elif dynamic_quit_conditions and stack >= success_threshold and dynamic_change < dynamic_change_max: # change conditions based on performace
                 quit_success = success_top
                 quit_failure = success_bottom
-            elif dynamic_quit_conditions and stack <= failure_threshold:
+                dynamic_change += 1
+            elif dynamic_quit_conditions and stack <= failure_threshold and dynamic_change < dynamic_change_max:
                 quit_success = failure_top
                 quit_failure = failure_bottom
+                dynamic_change += 1
         # End Inner Loop
 
         #
