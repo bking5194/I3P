@@ -191,38 +191,40 @@ if __name__ == '__main__':
     token_size = 4
 
     # User betting conditions
-    ante = 1 * token_size # limit = 16, min = 1
-    pair_plus = 3 * token_size # limit = 16, min = 0
+    ante = 6 * token_size # limit = 16, min = 1
+    pair_plus = 2 * token_size # limit = 16, min = 0
     starting_stack = 640 # Max ~2300 (64 stack * 36 slots of __________) ?????
     play_pair_plus = pair_plus > 0 # Play Pair Plus?
     # [0, 0] - [0, 2] play every hand? THEN WHY DO THE ODDS CHANGE?????
-    user_to_qualify = [0, 0] # Hand type (0-7) & Highest active card (0-12)
-    dynamic_quit_conditions = False # still problems here
+    user_to_qualify = [0, 10] # Hand type (0-7) & Highest active card (0-12)
+    dynamic_quit_conditions = True
     dynamic_change_max = 1
+    success = starting_stack + (ante + pair_plus)
+    failure = starting_stack * 0.5
 
     # Success conditions
-    quit_success = starting_stack + 32  # 864  Max score before quitting
-    success_threshold = starting_stack + 32
-    success_top = starting_stack
+    quit_success = success  # 864  Max score before quitting
+    success_threshold = starting_stack * 10
+    success_top = success
     success_bottom = starting_stack
 
     # Failure Conditions
-    quit_failure = 128 # 0 * starting_stack # Min score before quitting
-    failure_threshold =  starting_stack - 32
+    quit_failure = failure # 0 * starting_stack # Min score before quitting
+    failure_threshold =  starting_stack * 0.75
     failure_top = starting_stack
     failure_bottom = quit_failure
 
     # House settings
     house_starting_stack = 10200 # House bankroll? min 5100, ideal 13284
     house_stack = house_starting_stack
-    house_to_qualify = 11 # Default 11 = King, update to array like user_to_qualify
+    house_to_qualify = 10 # Default 11 = King, update to array like user_to_qualify
     pair_reward = 2 # final ratio 1:1
     flush_reward = 4 # final ratio 1:3
-    straight_reward = 5 # v1 ratio 1:4
-    flush_pair_reward = 6 # v1 ratio 1:6
-    trips_reward = 11 # v1 ratio 1:9
-    straight_flush_reward = 16 # v1 ratio 1:18
-    flush_trips_reward = 36 # v1 ratio 1:48
+    straight_reward = 5 # v1 & v2 ratio 1:4
+    flush_pair_reward = 6 # v2 ratio 1:5, v1 ratio 1:6
+    trips_reward = 11 # v2 ratio 1:10, v1 ratio 1:9
+    straight_flush_reward = 16 # v2 ratio 1:15, v1 ratio 1:18
+    flush_trips_reward = 21 # v2 ratio 1:35, v1 ratio 1:48
 
     #
     # End of testing variables
@@ -261,8 +263,8 @@ if __name__ == '__main__':
     game_counter = 0
     while game_counter < games: # Play Games
         game_counter += 1
-        quit_success = 2 * starting_stack
-        quit_failure = starting_stack / 2
+        quit_success = success
+        quit_failure = failure
         # Session Variables
         session_win = False
         session_busted = False
@@ -318,8 +320,8 @@ if __name__ == '__main__':
                     stack += (2 * ante + (ante / 2))
                     house_stack += -(2 * ante + (ante / 2))
                 elif house_qualifies and user_wins:
-                    stack += (4 * ante)  # Pay Ante and Play 1:1
-                    house_stack += -(4 * ante)
+                    stack += (3 * ante + (ante / 2))  # Pay Ante and Play 1:1
+                    house_stack += -(3 * ante + (ante / 2))
                     user_win_count += 1
 
                 # Pair Plus payout

@@ -148,7 +148,7 @@ if __name__ == '__main__':
     qualified_counter = 0
 
     # Calculation (to be looped)
-    to_qualify = 11 # Default 11 = King
+    to_qualify = 10 # Default 11 = King
 
     # Number of suits (default 4) and ranks (default 13)
     num_suits = 4
@@ -209,7 +209,9 @@ if __name__ == '__main__':
     house_play_rate = (qualified * highcard_percent) + other_hand_percent
 
     print("Qualified % =", 100 * qualified)
+    print("Highcard % =", 100 * highcard_percent)
     print("Total Highcards =", highcard_counter)
+    print("Total Hands =", total_hands)
     print("Total Other Hands =", not_highcard_counter)
     print("House Play Rate % =", 100 * house_play_rate)
 

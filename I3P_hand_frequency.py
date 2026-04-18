@@ -268,28 +268,38 @@ if __name__ == '__main__':
 
     print("Odds Testing:")
     stack = 100
-    pair_pay = 2 # 1:1
-    flush_pay = 4 # 1:3
-    straight_pay = 5 # 1:4
-    flush_pair_pay = 6 # 1:5
-    trips_pay = 11 # 1: 10
-    straight_flush_pay = 16 # 1:15
-    flush_trips_pay = 36 # 1:35
+    house_not_qualified_pay = 0.25#?????
+    house_qualified_and_user_won_pay = 0.75#????
+    pair_pay = 1 # 1:1
+    flush_pay = 3 # 1:3
+    straight_pay = 4 # 1:4
+    flush_pair_pay = 5 # 1:5
+    trips_pay = 10 # 1:10
+    straight_flush_pay = 15 # 1:15
+    flush_trips_pay = 20 # 1:20
     ev = stack * ((pair_pay * pair_percent) + (flush_pay * flush_percent) + (straight_pay * straight_percent) + (flush_pair_pay * flush_pair_percent) + (trips_pay * trips_percent) + (straight_flush_pay * straight_flush_percent) + (flush_trips_pay * flush_trips_percent))
+    ev += stack * ((house_not_qualified_pay * (1 - 0.590871948993791)))
+    ev += stack * (house_qualified_and_user_won_pay * 0.38)
+    ev -= stack * (-1)
+
     print('EV(100):', ev)
 
     print("Previous Build Odds:")
     stack = 100
-    pair_pay = 2
-    flush_pay = 4
-    straight_pay = 5
-    flush_pair_pay = 7
-    trips_pay = 13
-    straight_flush_pay = 19
-    flush_trips_pay = 37
+    house_not_qualified_pay = 0.25  # ?????
+    house_qualified_and_user_won_pay = 0.75  # ????
+    pair_pay = 1
+    flush_pay = 3
+    straight_pay = 4
+    flush_pair_pay = 5
+    trips_pay = 9
+    straight_flush_pay = 12
+    flush_trips_pay = 30
     ev = stack * ((pair_pay * pair_percent) + (flush_pay * flush_percent) + (straight_pay * straight_percent) + (
                 flush_pair_pay * flush_pair_percent) + (trips_pay * trips_percent) + (
                               straight_flush_pay * straight_flush_percent) + (flush_trips_pay * flush_trips_percent))
+    ev += stack * ((house_not_qualified_pay * (1 - 0.4303951799274629)))
+    ev += stack * (house_qualified_and_user_won_pay * 0.25)
     print('EV(100):', ev)
 
     #print("Error check:")
