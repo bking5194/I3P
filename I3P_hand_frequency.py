@@ -164,7 +164,7 @@ if __name__ == '__main__':
     num_ranks = 13
     last_card_index = (num_ranks * num_suits) - 1
 
-    loops = 1000000
+    loops = 10000000
     for i in range(loops):
         # Generate Cards
         c1 = random.randint(0, last_card_index)
@@ -268,25 +268,25 @@ if __name__ == '__main__':
 
     print("Odds Testing:")
     stack = 100
-    pair_pay = 2
-    flush_pay = 4
-    straight_pay = 5
-    flush_pair_pay = 7
-    trips_pay = 13
-    straight_flush_pay = 17
-    flush_trips_pay = 37
+    pair_pay = 2 # 1:1
+    flush_pay = 4 # 1:3
+    straight_pay = 5 # 1:4
+    flush_pair_pay = 6 # 1:5
+    trips_pay = 11 # 1: 10
+    straight_flush_pay = 16 # 1:15
+    flush_trips_pay = 36 # 1:35
     ev = stack * ((pair_pay * pair_percent) + (flush_pay * flush_percent) + (straight_pay * straight_percent) + (flush_pair_pay * flush_pair_percent) + (trips_pay * trips_percent) + (straight_flush_pay * straight_flush_percent) + (flush_trips_pay * flush_trips_percent))
     print('EV(100):', ev)
 
-    print("V1 Odds:")
+    print("Previous Build Odds:")
     stack = 100
     pair_pay = 2
     flush_pay = 4
     straight_pay = 5
     flush_pair_pay = 7
-    trips_pay = 10
+    trips_pay = 13
     straight_flush_pay = 19
-    flush_trips_pay = 49
+    flush_trips_pay = 37
     ev = stack * ((pair_pay * pair_percent) + (flush_pay * flush_percent) + (straight_pay * straight_percent) + (
                 flush_pair_pay * flush_pair_percent) + (trips_pay * trips_percent) + (
                               straight_flush_pay * straight_flush_percent) + (flush_trips_pay * flush_trips_percent))

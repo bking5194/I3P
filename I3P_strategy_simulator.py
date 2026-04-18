@@ -186,42 +186,43 @@ if __name__ == '__main__':
     # Variables for testing here
     #
 
-    games = 10000 # total games to simulate
+    games = 100000 # total games to simulate
     loops = 250 # total loops per game. 2-250
     token_size = 4
 
     # User betting conditions
-    ante = 4 * token_size # limit = 16, min = 1
-    pair_plus = 1 * token_size # limit = 16, min = 0
+    ante = 1 * token_size # limit = 16, min = 1
+    pair_plus = 3 * token_size # limit = 16, min = 0
     starting_stack = 640 # Max ~2300 (64 stack * 36 slots of __________) ?????
     play_pair_plus = pair_plus > 0 # Play Pair Plus?
     # [0, 0] - [0, 2] play every hand? THEN WHY DO THE ODDS CHANGE?????
     user_to_qualify = [0, 0] # Hand type (0-7) & Highest active card (0-12)
-    dynamic_quit_conditions = True # still problems here
-    dynamic_change_max = 2
+    dynamic_quit_conditions = False # still problems here
+    dynamic_change_max = 1
 
     # Success conditions
-    quit_success = 2 * starting_stack  # 864  Max score before quitting
-    success_threshold = 1.5 * starting_stack + 0
-    success_top = 2 * starting_stack
-    success_bottom = 1 * starting_stack - 0
+    quit_success = starting_stack + 32  # 864  Max score before quitting
+    success_threshold = starting_stack + 32
+    success_top = starting_stack
+    success_bottom = starting_stack
 
     # Failure Conditions
-    quit_failure = starting_stack / 3 # Min score before quitting
-    failure_threshold =  starting_stack / 2
+    quit_failure = 128 # 0 * starting_stack # Min score before quitting
+    failure_threshold =  starting_stack - 32
     failure_top = starting_stack
     failure_bottom = quit_failure
 
-    house_starting_stack = 5100 # House bankroll? min 5100, ideal 13284
+    # House settings
+    house_starting_stack = 10200 # House bankroll? min 5100, ideal 13284
     house_stack = house_starting_stack
     house_to_qualify = 11 # Default 11 = King, update to array like user_to_qualify
     pair_reward = 2 # final ratio 1:1
     flush_reward = 4 # final ratio 1:3
     straight_reward = 5 # v1 ratio 1:4
-    flush_pair_reward = 7 # v1 ratio 1:6
-    trips_reward = 13 # v1 ratio 1:9
-    straight_flush_reward = 17 # v1 ratio 1:18
-    flush_trips_reward = 37 # v1 ratio 1:48
+    flush_pair_reward = 6 # v1 ratio 1:6
+    trips_reward = 11 # v1 ratio 1:9
+    straight_flush_reward = 16 # v1 ratio 1:18
+    flush_trips_reward = 36 # v1 ratio 1:48
 
     #
     # End of testing variables
@@ -238,6 +239,7 @@ if __name__ == '__main__':
     total_hands_qualified = 0 #
     total_positive_sessions = 0 #
     dynamic_change = 0 #
+    positive_stack_counter = 0 #
 
     # Results Variables
     avg_stack_max = 0
@@ -264,6 +266,7 @@ if __name__ == '__main__':
         # Session Variables
         session_win = False
         session_busted = False
+        was_positive_session = False
         hand_counter = 0
         stack = starting_stack
         stack_max = starting_stack
@@ -307,16 +310,16 @@ if __name__ == '__main__':
                 if not house_qualifies and not play_pair_plus:
                     #stack += (2 * ante) v1 payout
                     #house_stack += -(2 * ante) v1 payout
-                    stack += (3 * ante - (ante / 2))  # Pay Ante 1:1 and return Play 4:3 (ante - 1)
-                    house_stack += -(3 * ante - (ante / 2))
+                    stack += (2 * ante + (ante / 2))  # Pay Ante 1:1 and return Play 4:3 (ante - 1)
+                    house_stack += -(2 * ante + (ante / 2))
                 elif not house_qualifies and play_pair_plus:
                     #stack += (3 * ante) v1 payout
                     #house_stack += -(3 * ante) v1 payout
-                    stack += (3 * ante - (ante / 2))
-                    house_stack += -(3 * ante - (ante / 2))
+                    stack += (2 * ante + (ante / 2))
+                    house_stack += -(2 * ante + (ante / 2))
                 elif house_qualifies and user_wins:
-                    stack += (4 * ante + (ante / 2))  # Pay Ante 1:1 and Play 4:5 (ante + 1)
-                    house_stack += -(4 * ante + (ante / 2))
+                    stack += (4 * ante)  # Pay Ante and Play 1:1
+                    house_stack += -(4 * ante)
                     user_win_count += 1
 
                 # Pair Plus payout
@@ -349,7 +352,9 @@ if __name__ == '__main__':
             #print(stack)
             if (stack > stack_max): stack_max = stack
             if (stack < stack_min): stack_min = stack
-
+            if (stack > starting_stack and not was_positive_session):
+                was_positive_session = True
+                positive_stack_counter += 1
             #
             # End Record Hand Data
             #
@@ -416,6 +421,8 @@ if __name__ == '__main__':
     positive_session_percent = 100 * total_positive_sessions / games
     house_profits = house_stack - house_starting_stack
     house_bankrupt = house_stack <= 0
+    percent_ante_won_per_hand = 100 * ((house_profits / total_hand_count) / (ante + pair_plus))
+    reached_positive_game_percent = 100 * (positive_stack_counter / games)
 
     # Print Results
     print()
@@ -424,13 +431,13 @@ if __name__ == '__main__':
     print("Total Hands Simulated:", total_hand_count)
     print("Total Hands Won:", user_win_count)
     print("Total Hands Qualified:", total_hands_qualified)
-    print("Total Pair Plus Won:")
+    #print("Total Pair Plus Won:")
     print("Game Length:", loops)
-    print("Average Hands Until Quitting:", avg_hands_until_quitting)
+    print("Average Hands Until Quitting:", avg_hands_until_quitting) # useful
     print("-----------------------------------------------")
     print("Total Sessions Simulated:", games)
     print("Total Successful Sessions:", session_win_count)
-    print("Total Neutral Sessions:")
+    #print("Total Neutral Sessions:")
     print("Total Times Busted:", session_busted_count)
     print("-----------------------------------------------")
     print("Average Stack Max:", avg_stack_max)
@@ -438,16 +445,18 @@ if __name__ == '__main__':
     print("Average Stack Final:", avg_stack_final)
     print("Starting Stack:", starting_stack)
     print("-----------------------------------------------")
-    print("Qualified Hands Won Percent:")
+    #print("Qualified Hands Won Percent:")
     print("Hand Wins Percent:", hand_win_percent, "%")
-    print("Pair Plus Wins Percent:")
     print("-----------------------------------------------")
-    print("Session Success Condition Met:", success_percent, "%")
-    print("Session Busted Condition Met:", busted_percent, "%")
+    if (not dynamic_quit_conditions): # Maybe make these results useful in this condition?
+        print("Session Success Condition Met:", success_percent, "%")
+        print("Session Busted Condition Met:", busted_percent, "%")
     print("Session Positive Percent:", positive_session_percent, "%")
     print("-----------------------------------------------")
-    print("House Profits:", house_profits)
+    #print("House Profits:", house_profits)
     print("House Gains per Game:", (house_profits / games))
     print("House Gains per Hand:", (house_profits / total_hand_count))
     print("House Bankrupt:", house_bankrupt)
     print("Biggest Winner:", max_winnings)
+    print("% of Buy-In per Hand:", percent_ante_won_per_hand, "%")
+    print("Reached Positive Game Percent:", reached_positive_game_percent, "%")
